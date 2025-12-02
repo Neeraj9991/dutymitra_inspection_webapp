@@ -1,0 +1,14 @@
+Flask==3.0.2
+pandas==2.2.2
+requests==2.31.0
+python-dotenv==1.0.1
+
+# DOCX generation
+docxtpl==0.16.7
+python-docx==1.1.2
+
+# Image handling (docxtpl uses Pillow internally)
+Pillow==10.2.0
+
+# Production server (Linux-only)
+gunicorn==21.2.0

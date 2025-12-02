@@ -1,0 +1,375 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Night Check Report Preview</title>
+    <style> 
+  @page {
+    size: A4;
+    margin: 20mm 15mm 20mm 15mm;
+  }
+
+  body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 11pt;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 20pt;
+    margin: 0 0 10px 0;
+    color: #0e1949;
+  }
+
+  h2 {
+    font-size: 14pt;
+    margin: 20px 0 8px;
+    color: #0e1949;
+  }
+
+  p {
+    margin: 4px 0;
+  }
+
+  /* Top sticky bar: only for on-screen navigation */
+  .top-bar {
+    position: sticky;
+    top: 0;
+    background: #f8f8f8;
+    padding: 8px 0 10px 0;
+    margin: -20px -20px 10px -20px;
+    border-bottom: 1px solid #ddd;
+    z-index: 999;
+  }
+
+  .top-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  .nav-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .nav-buttons form {
+    display: inline;
+  }
+
+  .btn {
+    padding: 5px 10px;
+    font-size: 10pt;
+    border-radius: 4px;
+    border: 1px solid #0e1949;
+    background: #fff;
+    color: #0e1949;
+    cursor: pointer;
+  }
+
+  .btn-primary {
+    background: #0e1949;
+    color: #fff;
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .logo-small {
+    height: 40px;
+  }
+
+  /* MAIN HEADER INSIDE REPORT (this one prints) */
+  .header {
+    border-bottom: 2px solid #0e1949;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .header-inner {
+    display: flex;
+    justify-content: space-between;   /* title left, logo right */
+    align-items: center;
+    gap: 16px;
+  }
+
+  .header-title {
+    flex: 1;
+  }
+
+  .header-title h1 {
+    font-size: 24pt;
+    font-weight: 700;
+    margin: 0;
+    color: #0e1949;
+  }
+
+  .logo-main {
+    height: 60px;
+    object-fit: contain;
+  }
+
+  .meta {
+    margin-top: 10px;
+    margin-bottom: 15px;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .label {
+    font-weight: bold;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 10px 0 20px 0;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  th,
+  td {
+    border: 0.5px solid #ccc;
+    padding: 6px 8px;
+    font-size: 10.5pt;
+  }
+
+  th {
+    background-color: #0e1949;
+    color: #fff;
+    text-align: left;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .remarks-box {
+    border-left: 3px solid #d52d27;
+    padding: 8px 10px;
+    margin: 10px auto 15px auto;
+    background: #fdf3f2;
+    max-width: 900px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .images-section {
+    margin-top: 10px;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .images-title {
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #0e1949;
+  }
+
+  .image-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .image-grid img {
+    max-width: 180px;
+    max-height: 130px;
+    border: 0.5px solid #ccc;
+  }
+
+  .footer {
+    margin-top: 25px;
+    font-size: 10pt;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  @media print {
+    /* Hide sticky nav bar in print, keep main header with logo */
+    .top-bar {
+      display: none;
+    }
+    body {
+      padding: 0;
+    }
+  }
+</style>
+
+  </head>
+  <body>
+    <!-- Sticky top bar with small logo + navigation + print (screen only) -->
+    <div class="top-bar">
+      <div class="top-inner">
+        <div>
+          <img
+            src="{{ url_for('static', filename='logo.png') }}"
+            alt="Company Logo"
+            class="logo-small"
+          />
+        </div>
+        <div class="nav-buttons">
+          <!-- Back to home -->
+          <form action="{{ url_for('index') }}" method="get">
+            <button type="submit" class="btn">Home</button>
+          </form>
+
+          <!-- Prev -->
+          <form action="{{ url_for('preview') }}" method="get">
+            <input type="hidden" name="sheet_input" value="{{ sheet_input }}" />
+            <input type="hidden" name="gid" value="{{ gid }}" />
+            <input type="hidden" name="date" value="{{ date_str }}" />
+            <input type="hidden" name="idx" value="{{ current_index - 1 }}" />
+            <button
+              type="submit"
+              class="btn"
+              {% if not has_prev %}disabled{% endif %}
+            >
+              ⬅ Prev
+            </button>
+          </form>
+
+          <span>Report {{ current_index + 1 }} of {{ total }}</span>
+
+          <!-- Next -->
+          <form action="{{ url_for('preview') }}" method="get">
+            <input type="hidden" name="sheet_input" value="{{ sheet_input }}" />
+            <input type="hidden" name="gid" value="{{ gid }}" />
+            <input type="hidden" name="date" value="{{ date_str }}" />
+            <input type="hidden" name="idx" value="{{ current_index + 1 }}" />
+            <button
+              type="submit"
+              class="btn"
+              {% if not has_next %}disabled{% endif %}
+            >
+              Next ➡
+            </button>
+          </form>
+
+          <!-- Print -->
+          <button type="button" class="btn btn-primary" onclick="window.print()">
+            🖨 Print
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN REPORT HEADER with LOGO (this is what prints) -->
+<div class="header">
+  <div class="header-inner">
+    
+    <!-- LEFT SIDE: Report Title -->
+    <div class="header-title">
+      <h1>Night Check Report</h1>
+    </div>
+
+    <!-- RIGHT SIDE: Logo -->
+    <div class="header-logo">
+      <img
+        src="{{ url_for('static', filename='logo.png') }}"
+        alt="Company Logo"
+        class="logo-main"
+      />
+    </div>
+
+  </div>
+</div>
+
+
+    <div style="max-width: 800px; margin: 0 auto;">
+      <p>Dear Sir/Madam,</p>
+      <p>
+        Please find below the comprehensive security inspection report for -
+        <strong>{{ site_name }}</strong>. This report includes detailed
+        assessments across all key security parameters.
+      </p>
+    </div>
+
+    <div class="meta">
+      <p><span class="label">Site:</span> {{ site_name }}</p>
+      <p><span class="label">Night Check At:</span> {{ date }} {{ time }}</p>
+    </div>
+
+    <h2 style="max-width: 800px; margin: 0 auto;">Documentation Check</h2>
+    <table>
+      <tr>
+        <th>List of Documents</th>
+        <th>Maintenance</th>
+      </tr>
+      <tr>
+        <td>Attendance Register</td>
+        <td>{{ attendance_register }}</td>
+      </tr>
+      <tr>
+        <td>Handling / Taking Over Register</td>
+        <td>{{ handling_register }}</td>
+      </tr>
+      <tr>
+        <td>Visitors Log Register</td>
+        <td>{{ material_register }}</td>
+      </tr>
+    </table>
+
+    <h2 style="max-width: 800px; margin: 0 auto;">Performance Check</h2>
+    <table>
+      <tr>
+        <th>Category</th>
+        <th>Rating</th>
+      </tr>
+      <tr>
+        <td>Grooming</td>
+        <td>{{ grooming }}</td>
+      </tr>
+      <tr>
+        <td>Alertness</td>
+        <td>{{ alertness }}</td>
+      </tr>
+      <tr>
+        <td>Post Discipline</td>
+        <td>{{ post_discipline }}</td>
+      </tr>
+      <tr>
+        <td><strong>Overall Rating</strong></td>
+        <td><strong>{{ overall_rating }}</strong></td>
+      </tr>
+    </table>
+
+    <div class="remarks-box">
+      <div class="label" style="margin-bottom: 4px;">Remarks:</div>
+      {% if observation %}
+      <p>{{ observation }}</p>
+      {% else %}
+      <p>No specific remarks recorded.</p>
+      {% endif %}
+    </div>
+
+    <div class="footer">
+      <p><span class="label">Inspected By:</span> {{ inspected_by }}</p>
+    </div>
+
+    {% if images_html and images_html|length > 0 %}
+    <div class="images-section">
+      <div class="images-title">Images / Evidence:</div>
+      <div class="image-grid">
+        {% for img in images_html %}
+        <img src="{{ img }}" alt="Inspection Image" />
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </body>
+</html>
