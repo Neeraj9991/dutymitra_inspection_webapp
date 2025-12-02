@@ -21,6 +21,8 @@ from docx.image.exceptions import UnrecognizedImageError
 load_dotenv()
 
 SECRET = os.getenv("SECRET_KEY")
+NIGHT_CHECK_SHEET_URL = os.getenv("NIGHT_CHECK_SHEET_URL", "")
+
 if not SECRET:
     raise RuntimeError("SECRET_KEY is missing in .env")
 
@@ -286,7 +288,11 @@ def index():
             flash("Unknown action.", "error")
             return redirect(url_for("index"))
 
-    return render_template("index.html")
+    return render_template(
+    "index.html",
+    night_check_url=NIGHT_CHECK_SHEET_URL
+)
+
 
 
 # -------------------- ROUTE: PREVIEW WITH NEXT / PREVIOUS --------------------
